@@ -1,0 +1,1 @@
+console.error("Error: Cannot find module '/Users/maechabin/Sites/Project/react-twitter/App.jsx' from '/Users/maechabin/Sites/Project/react-twitter'");
