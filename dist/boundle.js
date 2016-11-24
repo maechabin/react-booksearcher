@@ -39822,17 +39822,21 @@ var App = function (_React$Component) {
 
     _this.state = {
       word: '',
+      sort: 'sales',
       result: []
     };
     _this.handleInput = _this.handleInput.bind(_this);
     _this.handleClick = _this.handleClick.bind(_this);
+    _this.handleSort = _this.handleSort.bind(_this);
     return _this;
   }
 
   _createClass(App, [{
     key: 'fetchData',
     value: function fetchData(callback) {
-      (0, _nodeFetch2.default)('https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522?formatVersion=2&applicationId=&keyword=' + this.state.word, {
+      var params = '?' + 'formatVersion=2' + '&applicationId=10cb3e01455a16aef15a3381f015fdab' + ('&sort=' + this.state.sort) + ('&keyword=' + this.state.word);
+
+      (0, _nodeFetch2.default)('https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522' + params, {
         method: 'get',
         mode: 'cors'
       }).then(function (response) {
@@ -39866,22 +39870,39 @@ var App = function (_React$Component) {
       });
     }
   }, {
+    key: 'handleSort',
+    value: function handleSort(e) {
+      var _this3 = this;
+
+      var newSort = e.target.value;
+      console.log(newSort);
+      this.setState(function () {
+        return { sort: newSort };
+      });
+      return this.fetchData(function (apiResult) {
+        _this3.setState(function () {
+          return { result: apiResult };
+        });
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
         'div',
         null,
         _react2.default.createElement(
-          'div',
+          'h1',
           null,
-          'Hello Twitter'
+          '\u66F8\u7C4D\u691C\u7D22 by \u697D\u5929\u30D6\u30C3\u30AF\u30B9'
         ),
-        _react2.default.createElement(TwitterFormInput, {
+        _react2.default.createElement(BookSearchFormInput, {
           word: this.state.word,
           handleInput: this.handleInput
         }),
-        _react2.default.createElement(TwitterFormButton, { handleClick: this.handleClick }),
-        _react2.default.createElement(TwitterResult, { result: this.state.result })
+        _react2.default.createElement(BookSearchFormButton, { handleClick: this.handleClick }),
+        _react2.default.createElement(BookSearchFormRadio, { handleSort: this.handleSort }),
+        _react2.default.createElement(BookSearchResult, { result: this.state.result })
       );
     }
   }]);
@@ -39889,29 +39910,54 @@ var App = function (_React$Component) {
   return App;
 }(_react2.default.Component);
 
-var TwitterFormInput = function TwitterFormInput(props) {
+var BookSearchFormInput = function BookSearchFormInput(props) {
   return _react2.default.createElement('input', { type: 'text', placeholder: '\u30AD\u30FC\u30EF\u30FC\u30C9', value: props.word, onChange: props.handleInput });
 };
-TwitterFormInput.propTypes = {
+BookSearchFormInput.propTypes = {
   word: _react2.default.PropTypes.string,
   handleInput: _react2.default.PropTypes.func
 };
 
-var TwitterFormButton = function TwitterFormButton(props) {
+var BookSearchFormButton = function BookSearchFormButton(props) {
   return _react2.default.createElement(
     'button',
     { onClick: props.handleClick },
     '\u691C\u7D22'
   );
 };
-TwitterFormButton.propTypes = {
+BookSearchFormButton.propTypes = {
   handleClick: _react2.default.PropTypes.func
 };
 
-var TwitterResult = function TwitterResult(props) {
+var BookSearchFormRadio = function BookSearchFormRadio(props) {
+  return _react2.default.createElement(
+    'div',
+    null,
+    _react2.default.createElement(
+      'label',
+      null,
+      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: 'sales', onChange: props.handleSort }),
+      ' \u58F2\u308C\u3066\u3044\u308B'
+    ),
+    _react2.default.createElement(
+      'label',
+      null,
+      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: '+releaseDate', onChange: props.handleSort }),
+      ' \u767A\u58F2\u65E5\uFF08\u65B0\u3057\u3044\uFF09'
+    ),
+    _react2.default.createElement(
+      'label',
+      null,
+      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: '-releaseDate', onChange: props.handleSort }),
+      ' \u767A\u58F2\u65E5\uFF08\u53E4\u3044\uFF09'
+    )
+  );
+};
+
+var BookSearchResult = function BookSearchResult(props) {
   console.dir(props.result);
   var itemNodes = props.result.map(function (item) {
-    return _react2.default.createElement(Item, { item: item, key: item.itemUrl });
+    return _react2.default.createElement(BookSearchItem, { item: item, key: item.itemUrl });
   });
   return _react2.default.createElement(
     'div',
@@ -39919,25 +39965,28 @@ var TwitterResult = function TwitterResult(props) {
     itemNodes
   );
 };
-TwitterResult.propTypes = {
+BookSearchResult.propTypes = {
   result: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.object)
 };
 
-var Item = function Item(props) {
+var BookSearchItem = function BookSearchItem(props) {
   return _react2.default.createElement(
     'div',
     null,
     _react2.default.createElement(
       'a',
-      { href: props.item.itemUrl, target: '_blank' },
+      { href: props.item.itemUrl, target: '_blank', rel: 'noopener noreferrer' },
       _react2.default.createElement('img', { src: props.item.mediumImageUrl, alt: props.item.title })
     ),
     _react2.default.createElement(
       'a',
-      { href: props.item.itemUrl, target: '_blank' },
+      { href: props.item.itemUrl, target: '_blank', rel: 'noopener noreferrer' },
       props.item.title
     )
   );
+};
+BookSearchItem.propTypes = {
+  item: _react2.default.PropTypes.any
 };
 
 _reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.content'));

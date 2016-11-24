@@ -7,13 +7,21 @@ class App extends React.Component {
     super();
     this.state = {
       word: '',
+      sort: 'sales',
       result: [],
     };
     this.handleInput = this.handleInput.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.handleSort = this.handleSort.bind(this);
   }
   fetchData(callback) {
-    fetch(`https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522?formatVersion=2&applicationId=&keyword=${this.state.word}`, {
+    const params = '?'
+      + 'formatVersion=2'
+      + '&applicationId=10cb3e01455a16aef15a3381f015fdab'
+      + `&sort=${this.state.sort}`
+      + `&keyword=${this.state.word}`;
+
+    fetch(`https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522${params}`, {
       method: 'get',
       mode: 'cors',
     }).then((response) => {
@@ -36,61 +44,85 @@ class App extends React.Component {
       this.setState(() => ({ result: apiResult }));
     });
   }
+  handleSort(e) {
+    const newSort = e.target.value;
+    console.log(newSort);
+    this.setState(() => ({ sort: newSort }));
+    return this.fetchData((apiResult) => {
+      this.setState(() => ({ result: apiResult }));
+    });
+  }
   render() {
     return (
       <div>
-        <div>Hello Twitter</div>
-        <TwitterFormInput
+        <h1>書籍検索 by 楽天ブックス</h1>
+        <BookSearchFormInput
           word={this.state.word}
           handleInput={this.handleInput}
         />
-        <TwitterFormButton handleClick={this.handleClick} />
-        <TwitterResult result={this.state.result} />
+        <BookSearchFormButton handleClick={this.handleClick} />
+        <BookSearchFormRadio handleSort={this.handleSort} />
+        <BookSearchResult result={this.state.result} />
       </div>
     );
   }
 }
 
-const TwitterFormInput = (props) => {
+const BookSearchFormInput = (props) => {
   return (
     <input type="text" placeholder="キーワード" value={props.word} onChange={props.handleInput} />
   );
 };
-TwitterFormInput.propTypes = {
+BookSearchFormInput.propTypes = {
   word: React.PropTypes.string,
   handleInput: React.PropTypes.func,
 };
 
-const TwitterFormButton = (props) => {
+const BookSearchFormButton = (props) => {
   return (
     <button onClick={props.handleClick}>検索</button>
   );
 };
-TwitterFormButton.propTypes = {
+BookSearchFormButton.propTypes = {
   handleClick: React.PropTypes.func,
 };
 
-const TwitterResult = (props) => {
+const BookSearchFormRadio = (props) => {
+  return (
+    <div>
+      <label><input type="radio" name="sort" value="sales" onChange={props.handleSort} /> 売れている</label>
+      <label><input type="radio" name="sort" value="+releaseDate" onChange={props.handleSort} /> 発売日（新しい）</label>
+      <label><input type="radio" name="sort" value="-releaseDate" onChange={props.handleSort} /> 発売日（古い）</label>
+    </div>
+  );
+};
+
+const BookSearchResult = (props) => {
   console.dir(props.result);
   const itemNodes = props.result.map((item) => (
-    <Item item={item} key={item.itemUrl} />
+    <BookSearchItem item={item} key={item.itemUrl} />
   ));
   return (
     <div>{itemNodes}</div>
   );
 };
-TwitterResult.propTypes = {
+BookSearchResult.propTypes = {
   result: React.PropTypes.arrayOf(React.PropTypes.object),
 };
 
-const Item = (props) => {
+const BookSearchItem = (props) => {
   return (
     <div>
-      <a href={props.item.itemUrl} target="_blank"><img src={props.item.mediumImageUrl} alt={props.item.title} /></a>
-      <a href={props.item.itemUrl} target="_blank">{props.item.title}</a>
+      <a href={props.item.itemUrl} target="_blank" rel="noopener noreferrer">
+        <img src={props.item.mediumImageUrl} alt={props.item.title} />
+      </a>
+      <a href={props.item.itemUrl} target="_blank" rel="noopener noreferrer">{props.item.title}</a>
     </div>
   );
-}
+};
+BookSearchItem.propTypes = {
+  item: React.PropTypes.any,
+};
 
 ReactDom.render(
   <App />,
