@@ -46,9 +46,8 @@ class App extends React.Component {
   }
   handleSort(e) {
     const newSort = e.target.value;
-    console.log(newSort);
     this.setState(() => ({ sort: newSort }));
-    return this.fetchData((apiResult) => {
+    this.fetchData((apiResult) => {
       this.setState(() => ({ result: apiResult }));
     });
   }
@@ -61,7 +60,7 @@ class App extends React.Component {
           handleInput={this.handleInput}
         />
         <BookSearchFormButton handleClick={this.handleClick} />
-        <BookSearchFormRadio handleSort={this.handleSort} />
+        <BookSearchFormRadio handleSort={this.handleSort} sort={this.state.sort} />
         <BookSearchResult result={this.state.result} />
       </div>
     );
@@ -90,9 +89,12 @@ BookSearchFormButton.propTypes = {
 const BookSearchFormRadio = (props) => {
   return (
     <div>
-      <label><input type="radio" name="sort" value="sales" onChange={props.handleSort} /> 売れている</label>
-      <label><input type="radio" name="sort" value="+releaseDate" onChange={props.handleSort} /> 発売日（新しい）</label>
-      <label><input type="radio" name="sort" value="-releaseDate" onChange={props.handleSort} /> 発売日（古い）</label>
+      <label><input type="radio" name="sort" value="sales" onChange={props.handleSort}
+        checked={props.sort === 'sales'}
+      /> 売れている</label>
+      <label><input type="radio" name="sort" value="-releaseDate" onChange={props.handleSort}
+        checked={props.sort === '-releaseDate'}
+      /> 発売順</label>
     </div>
   );
 };
@@ -125,6 +127,6 @@ BookSearchItem.propTypes = {
 };
 
 ReactDom.render(
-  <App />,
+  <App aaa={'aaa'} />,
   document.querySelector('.content')
 );

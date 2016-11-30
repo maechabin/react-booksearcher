@@ -39875,11 +39875,10 @@ var App = function (_React$Component) {
       var _this3 = this;
 
       var newSort = e.target.value;
-      console.log(newSort);
       this.setState(function () {
         return { sort: newSort };
       });
-      return this.fetchData(function (apiResult) {
+      this.fetchData(function (apiResult) {
         _this3.setState(function () {
           return { result: apiResult };
         });
@@ -39901,7 +39900,7 @@ var App = function (_React$Component) {
           handleInput: this.handleInput
         }),
         _react2.default.createElement(BookSearchFormButton, { handleClick: this.handleClick }),
-        _react2.default.createElement(BookSearchFormRadio, { handleSort: this.handleSort }),
+        _react2.default.createElement(BookSearchFormRadio, { handleSort: this.handleSort, sort: this.state.sort }),
         _react2.default.createElement(BookSearchResult, { result: this.state.result })
       );
     }
@@ -39936,20 +39935,18 @@ var BookSearchFormRadio = function BookSearchFormRadio(props) {
     _react2.default.createElement(
       'label',
       null,
-      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: 'sales', onChange: props.handleSort }),
+      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: 'sales', onChange: props.handleSort,
+        checked: props.sort === 'sales'
+      }),
       ' \u58F2\u308C\u3066\u3044\u308B'
     ),
     _react2.default.createElement(
       'label',
       null,
-      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: '+releaseDate', onChange: props.handleSort }),
-      ' \u767A\u58F2\u65E5\uFF08\u65B0\u3057\u3044\uFF09'
-    ),
-    _react2.default.createElement(
-      'label',
-      null,
-      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: '-releaseDate', onChange: props.handleSort }),
-      ' \u767A\u58F2\u65E5\uFF08\u53E4\u3044\uFF09'
+      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: '-releaseDate', onChange: props.handleSort,
+        checked: props.sort === '-releaseDate'
+      }),
+      ' \u767A\u58F2\u9806'
     )
   );
 };
@@ -39989,6 +39986,6 @@ BookSearchItem.propTypes = {
   item: _react2.default.PropTypes.any
 };
 
-_reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.content'));
+_reactDom2.default.render(_react2.default.createElement(App, { aaa: 'aaa' }), document.querySelector('.content'));
 
 },{"node-fetch":63,"react":238,"react-dom":87}]},{},[264]);
