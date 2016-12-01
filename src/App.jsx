@@ -35,6 +35,11 @@ class App extends React.Component {
       response => console.log(response)
     );
   }
+  setFetchedData() {
+    return this.fetchData((apiResult) => {
+      this.setState(() => ({ result: apiResult }));
+    });
+  }
   handleInput(e) {
     const newValue = e.target.value;
     this.setState(() => ({ word: newValue }));
@@ -46,10 +51,11 @@ class App extends React.Component {
   }
   handleSort(e) {
     const newSort = e.target.value;
-    this.setState(() => ({ sort: newSort }));
-    this.fetchData((apiResult) => {
-      this.setState(() => ({ result: apiResult }));
-    });
+    this.setState((state, props) => {
+      if (state.word !== '' && newSort !== state.sort) {
+        return { sort: newSort };
+      }
+    }, this.setFetchedData);
   }
   render() {
     return (
@@ -89,18 +95,28 @@ BookSearchFormButton.propTypes = {
 const BookSearchFormRadio = (props) => {
   return (
     <div>
-      <label><input type="radio" name="sort" value="sales" onChange={props.handleSort}
-        checked={props.sort === 'sales'}
-      /> 売れている</label>
-      <label><input type="radio" name="sort" value="-releaseDate" onChange={props.handleSort}
-        checked={props.sort === '-releaseDate'}
-      /> 発売順</label>
+      <label>
+        <input
+          type="radio" name="sort" value="sales" onChange={props.handleSort}
+          checked={props.sort === 'sales'}
+        /> 売れている
+      </label>
+      <label>
+        <input
+          type="radio" name="sort" value="-releaseDate" onChange={props.handleSort}
+          checked={props.sort === '-releaseDate'}
+        /> 発売順
+      </label>
     </div>
   );
 };
+BookSearchFormRadio.propTypes = {
+  sort: React.PropTypes.string,
+  handleSort: React.PropTypes.func,
+};
 
 const BookSearchResult = (props) => {
-  console.dir(props.result);
+  console.log(props.result);
   const itemNodes = props.result.map((item) => (
     <BookSearchItem item={item} key={item.itemUrl} />
   ));
@@ -127,6 +143,6 @@ BookSearchItem.propTypes = {
 };
 
 ReactDom.render(
-  <App aaa={'aaa'} />,
+  <App />,
   document.querySelector('.content')
 );

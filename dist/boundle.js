@@ -39851,6 +39851,17 @@ var App = function (_React$Component) {
       });
     }
   }, {
+    key: 'setFetchedData',
+    value: function setFetchedData() {
+      var _this2 = this;
+
+      return this.fetchData(function (apiResult) {
+        _this2.setState(function () {
+          return { result: apiResult };
+        });
+      });
+    }
+  }, {
     key: 'handleInput',
     value: function handleInput(e) {
       var newValue = e.target.value;
@@ -39861,10 +39872,10 @@ var App = function (_React$Component) {
   }, {
     key: 'handleClick',
     value: function handleClick() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.fetchData(function (apiResult) {
-        _this2.setState(function () {
+        _this3.setState(function () {
           return { result: apiResult };
         });
       });
@@ -39872,17 +39883,12 @@ var App = function (_React$Component) {
   }, {
     key: 'handleSort',
     value: function handleSort(e) {
-      var _this3 = this;
-
       var newSort = e.target.value;
-      this.setState(function () {
-        return { sort: newSort };
-      });
-      this.fetchData(function (apiResult) {
-        _this3.setState(function () {
-          return { result: apiResult };
-        });
-      });
+      this.setState(function (state, props) {
+        if (state.word !== '' && newSort !== state.sort) {
+          return { sort: newSort };
+        }
+      }, this.setFetchedData);
     }
   }, {
     key: 'render',
@@ -39935,7 +39941,8 @@ var BookSearchFormRadio = function BookSearchFormRadio(props) {
     _react2.default.createElement(
       'label',
       null,
-      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: 'sales', onChange: props.handleSort,
+      _react2.default.createElement('input', {
+        type: 'radio', name: 'sort', value: 'sales', onChange: props.handleSort,
         checked: props.sort === 'sales'
       }),
       ' \u58F2\u308C\u3066\u3044\u308B'
@@ -39943,16 +39950,21 @@ var BookSearchFormRadio = function BookSearchFormRadio(props) {
     _react2.default.createElement(
       'label',
       null,
-      _react2.default.createElement('input', { type: 'radio', name: 'sort', value: '-releaseDate', onChange: props.handleSort,
+      _react2.default.createElement('input', {
+        type: 'radio', name: 'sort', value: '-releaseDate', onChange: props.handleSort,
         checked: props.sort === '-releaseDate'
       }),
       ' \u767A\u58F2\u9806'
     )
   );
 };
+BookSearchFormRadio.propTypes = {
+  sort: _react2.default.PropTypes.string,
+  handleSort: _react2.default.PropTypes.func
+};
 
 var BookSearchResult = function BookSearchResult(props) {
-  console.dir(props.result);
+  console.log(props.result);
   var itemNodes = props.result.map(function (item) {
     return _react2.default.createElement(BookSearchItem, { item: item, key: item.itemUrl });
   });
@@ -39986,6 +39998,6 @@ BookSearchItem.propTypes = {
   item: _react2.default.PropTypes.any
 };
 
-_reactDom2.default.render(_react2.default.createElement(App, { aaa: 'aaa' }), document.querySelector('.content'));
+_reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.content'));
 
 },{"node-fetch":63,"react":238,"react-dom":87}]},{},[264]);
