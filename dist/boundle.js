@@ -39823,11 +39823,13 @@ var App = function (_React$Component) {
     _this.state = {
       word: '',
       sort: 'sales',
-      result: []
+      result: [],
+      itemDetails: {}
     };
     _this.handleInput = _this.handleInput.bind(_this);
     _this.handleClick = _this.handleClick.bind(_this);
     _this.handleSort = _this.handleSort.bind(_this);
+    _this.handleShow = _this.handleShow.bind(_this);
     return _this;
   }
 
@@ -39855,9 +39857,15 @@ var App = function (_React$Component) {
     value: function setFetchedData() {
       var _this2 = this;
 
-      return this.fetchData(function (apiResult) {
-        _this2.setState(function () {
-          return { result: apiResult };
+      var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      return this.setState(function () {
+        return obj;
+      }, function () {
+        return _this2.fetchData(function (apiResult) {
+          return _this2.setState(function () {
+            return { result: apiResult };
+          });
         });
       });
     }
@@ -39865,30 +39873,31 @@ var App = function (_React$Component) {
     key: 'handleInput',
     value: function handleInput(e) {
       var newValue = e.target.value;
-      this.setState(function () {
+      return this.setState(function () {
         return { word: newValue };
       });
     }
   }, {
     key: 'handleClick',
     value: function handleClick() {
-      var _this3 = this;
-
-      this.fetchData(function (apiResult) {
-        _this3.setState(function () {
-          return { result: apiResult };
-        });
-      });
+      if (this.state.word !== '') {
+        return this.setFetchedData();
+      }
+      return false;
     }
   }, {
     key: 'handleSort',
     value: function handleSort(e) {
       var newSort = e.target.value;
-      this.setState(function (state, props) {
-        if (state.word !== '' && newSort !== state.sort) {
-          return { sort: newSort };
-        }
-      }, this.setFetchedData);
+      if (this.state.word !== '' && newSort !== this.state.sort) {
+        return this.setFetchedData({ sort: newSort });
+      }
+      return false;
+    }
+  }, {
+    key: 'handleShow',
+    value: function handleShow(item) {
+      this.setState({ itemDetails: item });
     }
   }, {
     key: 'render',
@@ -39897,17 +39906,34 @@ var App = function (_React$Component) {
         'div',
         null,
         _react2.default.createElement(
-          'h1',
+          'header',
           null,
-          '\u66F8\u7C4D\u691C\u7D22 by \u697D\u5929\u30D6\u30C3\u30AF\u30B9'
+          _react2.default.createElement(
+            'h1',
+            null,
+            '\u66F8\u7C4D\u691C\u7D22 by \u697D\u5929\u30D6\u30C3\u30AF\u30B9'
+          ),
+          _react2.default.createElement(BookSearchFormInput, {
+            word: this.state.word,
+            handleInput: this.handleInput
+          }),
+          _react2.default.createElement(BookSearchFormButton, { handleClick: this.handleClick })
         ),
-        _react2.default.createElement(BookSearchFormInput, {
-          word: this.state.word,
-          handleInput: this.handleInput
-        }),
-        _react2.default.createElement(BookSearchFormButton, { handleClick: this.handleClick }),
-        _react2.default.createElement(BookSearchFormRadio, { handleSort: this.handleSort, sort: this.state.sort }),
-        _react2.default.createElement(BookSearchResult, { result: this.state.result })
+        _react2.default.createElement(
+          'div',
+          { className: 'item-list' },
+          _react2.default.createElement(BookSearchResult, {
+            result: this.state.result,
+            handleSort: this.handleSort,
+            handleShow: this.handleShow,
+            sort: this.state.sort
+          })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'item-datails' },
+          _react2.default.createElement(BookSearchDetails, { item: this.state.itemDetails })
+        )
       );
     }
   }]);
@@ -39940,19 +39966,23 @@ var BookSearchFormRadio = function BookSearchFormRadio(props) {
     null,
     _react2.default.createElement(
       'label',
-      null,
+      { htmlFor: 'sales' },
       _react2.default.createElement('input', {
-        type: 'radio', name: 'sort', value: 'sales', onChange: props.handleSort,
-        checked: props.sort === 'sales'
+        id: 'sales',
+        type: 'radio', name: 'sort', value: 'sales',
+        checked: props.sort === 'sales',
+        onChange: props.handleSort
       }),
-      ' \u58F2\u308C\u3066\u3044\u308B'
+      ' \u58F2\u308C\u3066\u3044\u308B\u9806'
     ),
     _react2.default.createElement(
       'label',
-      null,
+      { htmlFor: 'releaseDate' },
       _react2.default.createElement('input', {
-        type: 'radio', name: 'sort', value: '-releaseDate', onChange: props.handleSort,
-        checked: props.sort === '-releaseDate'
+        id: 'releaseDate',
+        type: 'radio', name: 'sort', value: '-releaseDate',
+        checked: props.sort === '-releaseDate',
+        onChange: props.handleSort
       }),
       ' \u767A\u58F2\u9806'
     )
@@ -39964,21 +39994,37 @@ BookSearchFormRadio.propTypes = {
 };
 
 var BookSearchResult = function BookSearchResult(props) {
-  console.log(props.result);
+  console.log(props.result.length);
+  var radioButton = function radioButton() {
+    if (props.result.length !== 0) {
+      return _react2.default.createElement(BookSearchFormRadio, { handleSort: props.handleSort, sort: props.sort });
+    }
+    return false;
+  };
   var itemNodes = props.result.map(function (item) {
-    return _react2.default.createElement(BookSearchItem, { item: item, key: item.itemUrl });
+    return _react2.default.createElement(BookSearchItem, { item: item, key: item.itemUrl, handleShow: props.handleShow });
   });
   return _react2.default.createElement(
     'div',
     null,
-    itemNodes
+    radioButton(),
+    _react2.default.createElement(
+      'div',
+      null,
+      itemNodes
+    )
   );
 };
 BookSearchResult.propTypes = {
-  result: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.object)
+  result: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.object),
+  handleSort: _react2.default.PropTypes.func,
+  sort: _react2.default.PropTypes.string
 };
 
 var BookSearchItem = function BookSearchItem(props) {
+  var handleShow = function handleShow() {
+    return props.handleShow(props.item);
+  };
   return _react2.default.createElement(
     'div',
     null,
@@ -39991,11 +40037,40 @@ var BookSearchItem = function BookSearchItem(props) {
       'a',
       { href: props.item.itemUrl, target: '_blank', rel: 'noopener noreferrer' },
       props.item.title
+    ),
+    _react2.default.createElement(
+      'button',
+      { onClick: handleShow },
+      '\u8A73\u7D30\u3092\u898B\u308B'
     )
   );
 };
 BookSearchItem.propTypes = {
   item: _react2.default.PropTypes.any
+};
+
+var BookSearchDetails = function BookSearchDetails(props) {
+  var item = props.item;
+  var itemDetails = function itemDetails() {
+    return _react2.default.createElement(
+      'div',
+      null,
+      item.title,
+      item.author,
+      item.publisherName,
+      item.salesDate,
+      _react2.default.createElement(
+        'a',
+        { href: item.itemUrl, target: '_blank' },
+        '\u8CFC\u5165\u3059\u308B'
+      )
+    );
+  };
+  return _react2.default.createElement(
+    'div',
+    null,
+    itemDetails()
+  );
 };
 
 _reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.content'));
