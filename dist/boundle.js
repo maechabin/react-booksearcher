@@ -39821,10 +39821,11 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
     _this.state = {
-      word: '',
+      word: 'java',
       sort: 'sales',
       result: [],
-      itemDetails: {}
+      itemDetails: {},
+      selectedItem: ''
     };
     _this.handleInput = _this.handleInput.bind(_this);
     _this.handleClick = _this.handleClick.bind(_this);
@@ -39881,7 +39882,10 @@ var App = function (_React$Component) {
     key: 'handleClick',
     value: function handleClick() {
       if (this.state.word !== '') {
-        return this.setFetchedData();
+        return this.setState({
+          selectedItem: '',
+          itemDetails: {}
+        }, this.setFetchedData());
       }
       return false;
     }
@@ -39897,7 +39901,10 @@ var App = function (_React$Component) {
   }, {
     key: 'handleShow',
     value: function handleShow(item) {
-      this.setState({ itemDetails: item });
+      this.setState({
+        itemDetails: item,
+        selectedItem: item.itemUrl
+      });
     }
   }, {
     key: 'render',
@@ -39911,7 +39918,12 @@ var App = function (_React$Component) {
           _react2.default.createElement(
             'h1',
             null,
-            '\u66F8\u7C4D\u691C\u7D22 by \u697D\u5929\u30D6\u30C3\u30AF\u30B9'
+            'BookSearch! ',
+            _react2.default.createElement(
+              'span',
+              null,
+              'by \u697D\u5929\u30D6\u30C3\u30AF\u30B9'
+            )
           ),
           _react2.default.createElement(BookSearchFormInput, {
             word: this.state.word,
@@ -39926,12 +39938,13 @@ var App = function (_React$Component) {
             result: this.state.result,
             handleSort: this.handleSort,
             handleShow: this.handleShow,
-            sort: this.state.sort
+            sort: this.state.sort,
+            selectedItem: this.state.selectedItem
           })
         ),
         _react2.default.createElement(
           'div',
-          { className: 'item-datails' },
+          { className: 'item-details' },
           _react2.default.createElement(BookSearchDetails, { item: this.state.itemDetails })
         )
       );
@@ -40002,7 +40015,12 @@ var BookSearchResult = function BookSearchResult(props) {
     return false;
   };
   var itemNodes = props.result.map(function (item) {
-    return _react2.default.createElement(BookSearchItem, { item: item, key: item.itemUrl, handleShow: props.handleShow });
+    return _react2.default.createElement(BookSearchItem, {
+      item: item,
+      key: item.itemUrl,
+      selectedItem: props.selectedItem,
+      handleShow: props.handleShow
+    });
   });
   return _react2.default.createElement(
     'div',
@@ -40025,23 +40043,19 @@ var BookSearchItem = function BookSearchItem(props) {
   var handleShow = function handleShow() {
     return props.handleShow(props.item);
   };
+  var selected = props.selectedItem === props.item.itemUrl ? 'item selected' : 'item';
   return _react2.default.createElement(
     'div',
-    null,
+    { onClick: handleShow, className: selected },
     _react2.default.createElement(
-      'a',
-      { href: props.item.itemUrl, target: '_blank', rel: 'noopener noreferrer' },
-      _react2.default.createElement('img', { src: props.item.mediumImageUrl, alt: props.item.title })
+      'figure',
+      null,
+      _react2.default.createElement('img', { src: props.item.smallImageUrl, alt: props.item.title })
     ),
     _react2.default.createElement(
-      'a',
-      { href: props.item.itemUrl, target: '_blank', rel: 'noopener noreferrer' },
+      'p',
+      null,
       props.item.title
-    ),
-    _react2.default.createElement(
-      'button',
-      { onClick: handleShow },
-      '\u8A73\u7D30\u3092\u898B\u308B'
     )
   );
 };
@@ -40052,19 +40066,81 @@ BookSearchItem.propTypes = {
 var BookSearchDetails = function BookSearchDetails(props) {
   var item = props.item;
   var itemDetails = function itemDetails() {
-    return _react2.default.createElement(
-      'div',
-      null,
-      item.title,
-      item.author,
-      item.publisherName,
-      item.salesDate,
-      _react2.default.createElement(
-        'a',
-        { href: item.itemUrl, target: '_blank' },
-        '\u8CFC\u5165\u3059\u308B'
-      )
-    );
+    if (Object.keys(props.item).length !== 0) {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'ul',
+          { className: 'details-list' },
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement('img', { src: item.largeImageUrl, alt: item.title })
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(
+              'strong',
+              null,
+              item.title
+            )
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            '\u8457\u8005: ',
+            item.author
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            '\u51FA\u7248\u793E: ',
+            item.publisherName
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            '\u767A\u58F2\u65E5: ',
+            item.salesDate
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            'ISBN: ',
+            item.isbn
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            '\u8A55\u4FA1: ',
+            item.reviewAverage
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            '\u4FA1\u683C: ',
+            item.itemPrice,
+            '\u5186'
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            item.itemCaption
+          ),
+          _react2.default.createElement(
+            'li',
+            null,
+            _react2.default.createElement(
+              'a',
+              { href: item.itemUrl, target: '_blank' },
+              '\u8CFC\u5165\u3059\u308B'
+            )
+          )
+        )
+      );
+    }
   };
   return _react2.default.createElement(
     'div',

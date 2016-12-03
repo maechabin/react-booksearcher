@@ -6,10 +6,11 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      word: '',
+      word: 'java',
       sort: 'sales',
       result: [],
       itemDetails: {},
+      selectedItem: '',
     };
     this.handleInput = this.handleInput.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -51,7 +52,10 @@ class App extends React.Component {
   }
   handleClick() {
     if (this.state.word !== '') {
-      return this.setFetchedData();
+      return this.setState({
+        selectedItem: '',
+        itemDetails: {},
+      }, this.setFetchedData());
     }
     return false;
   }
@@ -63,13 +67,16 @@ class App extends React.Component {
     return false;
   }
   handleShow(item) {
-    this.setState({itemDetails: item});
+    this.setState({
+      itemDetails: item,
+      selectedItem: item.itemUrl,
+    });
   }
   render() {
     return (
       <div>
         <header>
-          <h1>書籍検索 by 楽天ブックス</h1>
+          <h1>BookSearch! <span>by 楽天ブックス</span></h1>
           <BookSearchFormInput
             word={this.state.word}
             handleInput={this.handleInput}
@@ -82,9 +89,10 @@ class App extends React.Component {
             handleSort={this.handleSort}
             handleShow={this.handleShow}
             sort={this.state.sort}
+            selectedItem={this.state.selectedItem}
           />
         </div>
-        <div className="item-datails">
+        <div className="item-details">
           <BookSearchDetails item={this.state.itemDetails} />
         </div>
       </div>
@@ -147,7 +155,12 @@ const BookSearchResult = (props) => {
     return false;
   };
   const itemNodes = props.result.map((item) => (
-    <BookSearchItem item={item} key={item.itemUrl} handleShow={props.handleShow} />
+    <BookSearchItem
+      item={item}
+      key={item.itemUrl}
+      selectedItem={props.selectedItem}
+      handleShow={props.handleShow}
+    />
   ));
   return (
     <div>
@@ -164,13 +177,13 @@ BookSearchResult.propTypes = {
 
 const BookSearchItem = (props) => {
   const handleShow = () => props.handleShow(props.item);
+  const selected = (props.selectedItem === props.item.itemUrl) ? 'item selected' : 'item';
   return (
-    <div>
-      <a href={props.item.itemUrl} target="_blank" rel="noopener noreferrer">
-        <img src={props.item.mediumImageUrl} alt={props.item.title} />
-      </a>
-      <a href={props.item.itemUrl} target="_blank" rel="noopener noreferrer">{props.item.title}</a>
-      <button onClick={handleShow}>詳細を見る</button>
+    <div onClick={handleShow} className={selected}>
+      <figure>
+        <img src={props.item.smallImageUrl} alt={props.item.title} />
+      </figure>
+      <p>{props.item.title}</p>
     </div>
   );
 };
@@ -181,15 +194,24 @@ BookSearchItem.propTypes = {
 const BookSearchDetails = (props) => {
   const item = props.item;
   const itemDetails = () => {
-    return (
-      <div>
-        {item.title}
-        {item.author}
-        {item.publisherName}
-        {item.salesDate}
-        <a href={item.itemUrl} target="_blank">購入する</a>
-      </div>
-    );
+    if (Object.keys(props.item).length !== 0) {
+      return (
+        <div>
+          <ul className="details-list">
+            <li><img src={item.largeImageUrl} alt={item.title} /></li>
+            <li><strong>{item.title}</strong></li>
+            <li>著者: {item.author}</li>
+            <li>出版社: {item.publisherName}</li>
+            <li>発売日: {item.salesDate}</li>
+            <li>ISBN: {item.isbn}</li>
+            <li>評価: {item.reviewAverage}</li>
+            <li>価格: {item.itemPrice}円</li>
+            <li>{item.itemCaption}</li>
+            <li><a href={item.itemUrl} target="_blank">購入する</a></li>
+          </ul>
+        </div>
+      );
+    }
   };
   return (
     <div>{ itemDetails() }</div>
