@@ -9,7 +9,7 @@ class App extends React.Component {
       word: '',
       sort: 'sales',
       result: [],
-      pushedButton: false,
+      startSearch: false,
       itemDetails: {},
       selectedItem: '',
     };
@@ -43,7 +43,10 @@ class App extends React.Component {
     return this.setState(
       () => obj,
       () => this.fetchData(
-        apiResult => this.setState(() => ({ result: apiResult })),
+        apiResult => this.setState(() => ({
+          result: apiResult,
+          startSearch: true,
+        })),
       ),
     );
   }
@@ -56,7 +59,6 @@ class App extends React.Component {
       return this.setState({
         selectedItem: '',
         itemDetails: {},
-        pushedButton: true,
       }, this.setFetchedData());
     }
     return false;
@@ -85,7 +87,7 @@ class App extends React.Component {
         <BookSearchResult
           word={this.state.word}
           result={this.state.result}
-          pushedButton={this.state.pushedButton}
+          startSearch={this.state.startSearch}
           handleSort={this.handleSort}
           handleShow={this.handleShow}
           sort={this.state.sort}
@@ -133,6 +135,8 @@ const BookSearchResult = (props) => {
   const radioButton = () => {
     if (props.result.length !== 0) {
       return <BookSearchFormRadio handleSort={props.handleSort} sort={props.sort} />;
+    } else if (props.startSearch !== false) {
+      return <p>ありませんでした</p>;
     }
     return false;
   };

@@ -39824,7 +39824,7 @@ var App = function (_React$Component) {
       word: '',
       sort: 'sales',
       result: [],
-      pushedButton: false,
+      startSearch: false,
       itemDetails: {},
       selectedItem: ''
     };
@@ -39866,7 +39866,10 @@ var App = function (_React$Component) {
       }, function () {
         return _this2.fetchData(function (apiResult) {
           return _this2.setState(function () {
-            return { result: apiResult };
+            return {
+              result: apiResult,
+              startSearch: true
+            };
           });
         });
       });
@@ -39885,8 +39888,7 @@ var App = function (_React$Component) {
       if (this.state.word !== '') {
         return this.setState({
           selectedItem: '',
-          itemDetails: {},
-          pushedButton: true
+          itemDetails: {}
         }, this.setFetchedData());
       }
       return false;
@@ -39922,7 +39924,7 @@ var App = function (_React$Component) {
         _react2.default.createElement(BookSearchResult, {
           word: this.state.word,
           result: this.state.result,
-          pushedButton: this.state.pushedButton,
+          startSearch: this.state.startSearch,
           handleSort: this.handleSort,
           handleShow: this.handleShow,
           sort: this.state.sort,
@@ -39987,6 +39989,12 @@ var BookSearchResult = function BookSearchResult(props) {
   var radioButton = function radioButton() {
     if (props.result.length !== 0) {
       return _react2.default.createElement(BookSearchFormRadio, { handleSort: props.handleSort, sort: props.sort });
+    } else if (props.startSearch !== false) {
+      return _react2.default.createElement(
+        'p',
+        null,
+        '\u3042\u308A\u307E\u305B\u3093\u3067\u3057\u305F'
+      );
     }
     return false;
   };
