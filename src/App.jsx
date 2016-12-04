@@ -6,9 +6,10 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      word: 'java',
+      word: '',
       sort: 'sales',
       result: [],
+      pushedButton: false,
       itemDetails: {},
       selectedItem: '',
     };
@@ -55,6 +56,7 @@ class App extends React.Component {
       return this.setState({
         selectedItem: '',
         itemDetails: {},
+        pushedButton: true,
       }, this.setFetchedData());
     }
     return false;
@@ -67,7 +69,7 @@ class App extends React.Component {
     return false;
   }
   handleShow(item) {
-    this.setState({
+    return this.setState({
       itemDetails: item,
       selectedItem: item.itemUrl,
     });
@@ -75,79 +77,59 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <header>
-          <h1>BookSearch! <span>by 楽天ブックス</span></h1>
-          <BookSearchFormInput
-            word={this.state.word}
-            handleInput={this.handleInput}
-          />
-          <BookSearchFormButton handleClick={this.handleClick} />
-        </header>
-        <div className="item-list">
-          <BookSearchResult
-            result={this.state.result}
-            handleSort={this.handleSort}
-            handleShow={this.handleShow}
-            sort={this.state.sort}
-            selectedItem={this.state.selectedItem}
-          />
-        </div>
-        <div className="item-details">
-          <BookSearchDetails item={this.state.itemDetails} />
-        </div>
+        <BookSearchHeader
+          word={this.state.word}
+          handleInput={this.handleInput}
+          handleClick={this.handleClick}
+        />
+        <BookSearchResult
+          word={this.state.word}
+          result={this.state.result}
+          pushedButton={this.state.pushedButton}
+          handleSort={this.handleSort}
+          handleShow={this.handleShow}
+          sort={this.state.sort}
+          selectedItem={this.state.selectedItem}
+        />
+        <BookSearchDetails item={this.state.itemDetails} />
       </div>
     );
   }
 }
 
-const BookSearchFormInput = (props) => {
-  return (
-    <input type="text" placeholder="キーワード" value={props.word} onChange={props.handleInput} />
-  );
+const BookSearchHeader = props => (
+  <header>
+    <h1>BookSearch! <span>by 楽天ブックス</span></h1>
+    <BookSearchFormInput
+      word={props.word}
+      handleInput={props.handleInput}
+    />
+    <BookSearchFormButton handleClick={props.handleClick} />
+  </header>
+);
+BookSearchHeader.propTypes = {
+  word: React.PropTypes.string,
+  handleInput: React.PropTypes.func,
+  handleClick: React.PropTypes.func,
 };
+
+const BookSearchFormInput = props => (
+  <input type="text" placeholder="キーワード" value={props.word} onChange={props.handleInput} />
+);
 BookSearchFormInput.propTypes = {
   word: React.PropTypes.string,
   handleInput: React.PropTypes.func,
 };
 
-const BookSearchFormButton = (props) => {
-  return (
-    <button onClick={props.handleClick}>検索</button>
-  );
-};
+const BookSearchFormButton = props => (
+  <button onClick={props.handleClick}>検索</button>
+);
 BookSearchFormButton.propTypes = {
   handleClick: React.PropTypes.func,
 };
 
-const BookSearchFormRadio = (props) => {
-  return (
-    <div>
-      <label htmlFor="sales">
-        <input
-          id="sales"
-          type="radio" name="sort" value="sales"
-          checked={props.sort === 'sales'}
-          onChange={props.handleSort}
-        /> 売れている順
-      </label>
-      <label htmlFor="releaseDate">
-        <input
-          id="releaseDate"
-          type="radio" name="sort" value="-releaseDate"
-          checked={props.sort === '-releaseDate'}
-          onChange={props.handleSort}
-        /> 発売順
-      </label>
-    </div>
-  );
-};
-BookSearchFormRadio.propTypes = {
-  sort: React.PropTypes.string,
-  handleSort: React.PropTypes.func,
-};
-
 const BookSearchResult = (props) => {
-  console.log(props.result.length);
+  console.log(props.result);
   const radioButton = () => {
     if (props.result.length !== 0) {
       return <BookSearchFormRadio handleSort={props.handleSort} sort={props.sort} />;
@@ -163,16 +145,43 @@ const BookSearchResult = (props) => {
     />
   ));
   return (
-    <div>
+    <div className="item-list">
       {radioButton()}
       <div>{itemNodes}</div>
     </div>
   );
 };
 BookSearchResult.propTypes = {
+  word: React.PropTypes.string,
   result: React.PropTypes.arrayOf(React.PropTypes.object),
   handleSort: React.PropTypes.func,
+  handleShow: React.PropTypes.func,
   sort: React.PropTypes.string,
+};
+
+const BookSearchFormRadio = props => (
+  <div>
+    <label htmlFor="sales">
+      <input
+        id="sales"
+        type="radio" name="sort" value="sales"
+        checked={props.sort === 'sales'}
+        onChange={props.handleSort}
+      /> 売れている順
+    </label>
+    <label htmlFor="releaseDate">
+      <input
+        id="releaseDate"
+        type="radio" name="sort" value="-releaseDate"
+        checked={props.sort === '-releaseDate'}
+        onChange={props.handleSort}
+      /> 発売順
+    </label>
+  </div>
+);
+BookSearchFormRadio.propTypes = {
+  sort: React.PropTypes.string,
+  handleSort: React.PropTypes.func,
 };
 
 const BookSearchItem = (props) => {
@@ -188,6 +197,8 @@ const BookSearchItem = (props) => {
   );
 };
 BookSearchItem.propTypes = {
+  handleShow: React.PropTypes.func,
+  selectedItem: React.PropTypes.string,
   item: React.PropTypes.any,
 };
 
@@ -198,7 +209,11 @@ const BookSearchDetails = (props) => {
       return (
         <div>
           <ul className="details-list">
-            <li><img src={item.largeImageUrl} alt={item.title} /></li>
+            <li>
+              <a href={item.itemUrl} target="_blank" rel="noopener noreferrer">
+                <img src={item.largeImageUrl} alt={item.title} />
+              </a>
+            </li>
             <li><strong>{item.title}</strong></li>
             <li>著者: {item.author}</li>
             <li>出版社: {item.publisherName}</li>
@@ -207,15 +222,25 @@ const BookSearchDetails = (props) => {
             <li>評価: {item.reviewAverage}</li>
             <li>価格: {item.itemPrice}円</li>
             <li>{item.itemCaption}</li>
-            <li><a href={item.itemUrl} target="_blank">購入する</a></li>
+            <li className="details-link">
+              <a href={item.itemUrl} target="_blank" rel="noopener noreferrer">
+                購入する
+              </a>
+            </li>
           </ul>
         </div>
       );
     }
+    return false;
   };
   return (
-    <div>{ itemDetails() }</div>
+    <div className="item-details">
+      { itemDetails() }
+    </div>
   );
+};
+BookSearchDetails.propTypes = {
+  item: React.PropTypes.object,
 };
 
 ReactDom.render(

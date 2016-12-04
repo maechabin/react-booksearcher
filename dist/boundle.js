@@ -39821,9 +39821,10 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
     _this.state = {
-      word: 'java',
+      word: '',
       sort: 'sales',
       result: [],
+      pushedButton: false,
       itemDetails: {},
       selectedItem: ''
     };
@@ -39884,7 +39885,8 @@ var App = function (_React$Component) {
       if (this.state.word !== '') {
         return this.setState({
           selectedItem: '',
-          itemDetails: {}
+          itemDetails: {},
+          pushedButton: true
         }, this.setFetchedData());
       }
       return false;
@@ -39901,7 +39903,7 @@ var App = function (_React$Component) {
   }, {
     key: 'handleShow',
     value: function handleShow(item) {
-      this.setState({
+      return this.setState({
         itemDetails: item,
         selectedItem: item.itemUrl
       });
@@ -39912,47 +39914,54 @@ var App = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         null,
-        _react2.default.createElement(
-          'header',
-          null,
-          _react2.default.createElement(
-            'h1',
-            null,
-            'BookSearch! ',
-            _react2.default.createElement(
-              'span',
-              null,
-              'by \u697D\u5929\u30D6\u30C3\u30AF\u30B9'
-            )
-          ),
-          _react2.default.createElement(BookSearchFormInput, {
-            word: this.state.word,
-            handleInput: this.handleInput
-          }),
-          _react2.default.createElement(BookSearchFormButton, { handleClick: this.handleClick })
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'item-list' },
-          _react2.default.createElement(BookSearchResult, {
-            result: this.state.result,
-            handleSort: this.handleSort,
-            handleShow: this.handleShow,
-            sort: this.state.sort,
-            selectedItem: this.state.selectedItem
-          })
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'item-details' },
-          _react2.default.createElement(BookSearchDetails, { item: this.state.itemDetails })
-        )
+        _react2.default.createElement(BookSearchHeader, {
+          word: this.state.word,
+          handleInput: this.handleInput,
+          handleClick: this.handleClick
+        }),
+        _react2.default.createElement(BookSearchResult, {
+          word: this.state.word,
+          result: this.state.result,
+          pushedButton: this.state.pushedButton,
+          handleSort: this.handleSort,
+          handleShow: this.handleShow,
+          sort: this.state.sort,
+          selectedItem: this.state.selectedItem
+        }),
+        _react2.default.createElement(BookSearchDetails, { item: this.state.itemDetails })
       );
     }
   }]);
 
   return App;
 }(_react2.default.Component);
+
+var BookSearchHeader = function BookSearchHeader(props) {
+  return _react2.default.createElement(
+    'header',
+    null,
+    _react2.default.createElement(
+      'h1',
+      null,
+      'BookSearch! ',
+      _react2.default.createElement(
+        'span',
+        null,
+        'by \u697D\u5929\u30D6\u30C3\u30AF\u30B9'
+      )
+    ),
+    _react2.default.createElement(BookSearchFormInput, {
+      word: props.word,
+      handleInput: props.handleInput
+    }),
+    _react2.default.createElement(BookSearchFormButton, { handleClick: props.handleClick })
+  );
+};
+BookSearchHeader.propTypes = {
+  word: _react2.default.PropTypes.string,
+  handleInput: _react2.default.PropTypes.func,
+  handleClick: _react2.default.PropTypes.func
+};
 
 var BookSearchFormInput = function BookSearchFormInput(props) {
   return _react2.default.createElement('input', { type: 'text', placeholder: '\u30AD\u30FC\u30EF\u30FC\u30C9', value: props.word, onChange: props.handleInput });
@@ -39971,6 +39980,41 @@ var BookSearchFormButton = function BookSearchFormButton(props) {
 };
 BookSearchFormButton.propTypes = {
   handleClick: _react2.default.PropTypes.func
+};
+
+var BookSearchResult = function BookSearchResult(props) {
+  console.log(props.result);
+  var radioButton = function radioButton() {
+    if (props.result.length !== 0) {
+      return _react2.default.createElement(BookSearchFormRadio, { handleSort: props.handleSort, sort: props.sort });
+    }
+    return false;
+  };
+  var itemNodes = props.result.map(function (item) {
+    return _react2.default.createElement(BookSearchItem, {
+      item: item,
+      key: item.itemUrl,
+      selectedItem: props.selectedItem,
+      handleShow: props.handleShow
+    });
+  });
+  return _react2.default.createElement(
+    'div',
+    { className: 'item-list' },
+    radioButton(),
+    _react2.default.createElement(
+      'div',
+      null,
+      itemNodes
+    )
+  );
+};
+BookSearchResult.propTypes = {
+  word: _react2.default.PropTypes.string,
+  result: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.object),
+  handleSort: _react2.default.PropTypes.func,
+  handleShow: _react2.default.PropTypes.func,
+  sort: _react2.default.PropTypes.string
 };
 
 var BookSearchFormRadio = function BookSearchFormRadio(props) {
@@ -40006,39 +40050,6 @@ BookSearchFormRadio.propTypes = {
   handleSort: _react2.default.PropTypes.func
 };
 
-var BookSearchResult = function BookSearchResult(props) {
-  console.log(props.result.length);
-  var radioButton = function radioButton() {
-    if (props.result.length !== 0) {
-      return _react2.default.createElement(BookSearchFormRadio, { handleSort: props.handleSort, sort: props.sort });
-    }
-    return false;
-  };
-  var itemNodes = props.result.map(function (item) {
-    return _react2.default.createElement(BookSearchItem, {
-      item: item,
-      key: item.itemUrl,
-      selectedItem: props.selectedItem,
-      handleShow: props.handleShow
-    });
-  });
-  return _react2.default.createElement(
-    'div',
-    null,
-    radioButton(),
-    _react2.default.createElement(
-      'div',
-      null,
-      itemNodes
-    )
-  );
-};
-BookSearchResult.propTypes = {
-  result: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.object),
-  handleSort: _react2.default.PropTypes.func,
-  sort: _react2.default.PropTypes.string
-};
-
 var BookSearchItem = function BookSearchItem(props) {
   var handleShow = function handleShow() {
     return props.handleShow(props.item);
@@ -40060,6 +40071,8 @@ var BookSearchItem = function BookSearchItem(props) {
   );
 };
 BookSearchItem.propTypes = {
+  handleShow: _react2.default.PropTypes.func,
+  selectedItem: _react2.default.PropTypes.string,
   item: _react2.default.PropTypes.any
 };
 
@@ -40076,7 +40089,11 @@ var BookSearchDetails = function BookSearchDetails(props) {
           _react2.default.createElement(
             'li',
             null,
-            _react2.default.createElement('img', { src: item.largeImageUrl, alt: item.title })
+            _react2.default.createElement(
+              'a',
+              { href: item.itemUrl, target: '_blank', rel: 'noopener noreferrer' },
+              _react2.default.createElement('img', { src: item.largeImageUrl, alt: item.title })
+            )
           ),
           _react2.default.createElement(
             'li',
@@ -40131,22 +40148,26 @@ var BookSearchDetails = function BookSearchDetails(props) {
           ),
           _react2.default.createElement(
             'li',
-            null,
+            { className: 'details-link' },
             _react2.default.createElement(
               'a',
-              { href: item.itemUrl, target: '_blank' },
+              { href: item.itemUrl, target: '_blank', rel: 'noopener noreferrer' },
               '\u8CFC\u5165\u3059\u308B'
             )
           )
         )
       );
     }
+    return false;
   };
   return _react2.default.createElement(
     'div',
-    null,
+    { className: 'item-details' },
     itemDetails()
   );
+};
+BookSearchDetails.propTypes = {
+  item: _react2.default.PropTypes.object
 };
 
 _reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.content'));
