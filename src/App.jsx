@@ -131,31 +131,37 @@ BookSearchFormButton.propTypes = {
 };
 
 const BookSearchResult = (props) => {
-  console.log(props.result);
-  const radioButton = () => {
+  // console.log(props.result);
+  const displayRadioButton = () => {
     if (props.result.length !== 0) {
       return <BookSearchFormRadio handleSort={props.handleSort} sort={props.sort} />;
-    } else if (props.startSearch !== false) {
-      return <p>ありませんでした</p>;
     }
     return false;
   };
-  const itemNodes = props.result.map((item) => (
-    <BookSearchItem
-      item={item}
-      key={item.itemUrl}
-      selectedItem={props.selectedItem}
-      handleShow={props.handleShow}
-    />
-  ));
+  const displayItemNodes = () => {
+    if (props.result.length === 0 && props.startSearch !== false) {
+      return <p className="nonMessage">お探しの書籍はありませんでした</p>;
+    } else if (props.startSearch !== false) {
+      return props.result.map(item => (
+        <BookSearchItem
+          item={item}
+          key={item.itemUrl}
+          selectedItem={props.selectedItem}
+          handleShow={props.handleShow}
+        />
+      ));
+    }
+    return false;
+  };
   return (
     <div className="item-list">
-      {radioButton()}
-      <div>{itemNodes}</div>
+      {displayRadioButton()}
+      <div>{displayItemNodes()}</div>
     </div>
   );
 };
 BookSearchResult.propTypes = {
+  startSearch: React.PropTypes.bool,
   word: React.PropTypes.string,
   result: React.PropTypes.arrayOf(React.PropTypes.object),
   handleSort: React.PropTypes.func,

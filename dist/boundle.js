@@ -39985,39 +39985,45 @@ BookSearchFormButton.propTypes = {
 };
 
 var BookSearchResult = function BookSearchResult(props) {
-  console.log(props.result);
-  var radioButton = function radioButton() {
+  // console.log(props.result);
+  var displayRadioButton = function displayRadioButton() {
     if (props.result.length !== 0) {
       return _react2.default.createElement(BookSearchFormRadio, { handleSort: props.handleSort, sort: props.sort });
-    } else if (props.startSearch !== false) {
-      return _react2.default.createElement(
-        'p',
-        null,
-        '\u3042\u308A\u307E\u305B\u3093\u3067\u3057\u305F'
-      );
     }
     return false;
   };
-  var itemNodes = props.result.map(function (item) {
-    return _react2.default.createElement(BookSearchItem, {
-      item: item,
-      key: item.itemUrl,
-      selectedItem: props.selectedItem,
-      handleShow: props.handleShow
-    });
-  });
+  var displayItemNodes = function displayItemNodes() {
+    if (props.result.length === 0 && props.startSearch !== false) {
+      return _react2.default.createElement(
+        'p',
+        { className: 'nonMessage' },
+        '\u304A\u63A2\u3057\u306E\u66F8\u7C4D\u306F\u3042\u308A\u307E\u305B\u3093\u3067\u3057\u305F'
+      );
+    } else if (props.startSearch !== false) {
+      return props.result.map(function (item) {
+        return _react2.default.createElement(BookSearchItem, {
+          item: item,
+          key: item.itemUrl,
+          selectedItem: props.selectedItem,
+          handleShow: props.handleShow
+        });
+      });
+    }
+    return false;
+  };
   return _react2.default.createElement(
     'div',
     { className: 'item-list' },
-    radioButton(),
+    displayRadioButton(),
     _react2.default.createElement(
       'div',
       null,
-      itemNodes
+      displayItemNodes()
     )
   );
 };
 BookSearchResult.propTypes = {
+  startSearch: _react2.default.PropTypes.bool,
   word: _react2.default.PropTypes.string,
   result: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.object),
   handleSort: _react2.default.PropTypes.func,
