@@ -39812,19 +39812,19 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var App = function (_React$Component) {
-  _inherits(App, _React$Component);
+var BookSearch = function (_React$Component) {
+  _inherits(BookSearch, _React$Component);
 
-  function App() {
-    _classCallCheck(this, App);
+  function BookSearch(props) {
+    _classCallCheck(this, BookSearch);
 
-    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
+    var _this = _possibleConstructorReturn(this, (BookSearch.__proto__ || Object.getPrototypeOf(BookSearch)).call(this, props));
 
     _this.state = {
       word: '',
       sort: 'sales',
       result: [],
-      startSearch: false,
+      startSearchFlag: false,
       itemDetails: {},
       selectedItem: ''
     };
@@ -39835,14 +39835,13 @@ var App = function (_React$Component) {
     return _this;
   }
 
-  _createClass(App, [{
+  _createClass(BookSearch, [{
     key: 'fetchData',
     value: function fetchData(callback) {
       var params = '?' + 'formatVersion=2' + '&applicationId=10cb3e01455a16aef15a3381f015fdab' + ('&sort=' + this.state.sort) + ('&keyword=' + this.state.word);
 
       (0, _nodeFetch2.default)('https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522' + params, {
-        method: 'get',
-        mode: 'cors'
+        method: 'get'
       }).then(function (response) {
         if (response.status === 200) {
           return response.json();
@@ -39861,15 +39860,11 @@ var App = function (_React$Component) {
 
       var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      return this.setState(function () {
-        return obj;
-      }, function () {
+      return this.setState(obj, function () {
         return _this2.fetchData(function (apiResult) {
-          return _this2.setState(function () {
-            return {
-              result: apiResult,
-              startSearch: true
-            };
+          return _this2.setState({
+            result: apiResult,
+            startSearchFlag: true
           });
         });
       });
@@ -39878,9 +39873,7 @@ var App = function (_React$Component) {
     key: 'handleInput',
     value: function handleInput(e) {
       var newValue = e.target.value;
-      return this.setState(function () {
-        return { word: newValue };
-      });
+      return this.setState({ word: newValue });
     }
   }, {
     key: 'handleClick',
@@ -39924,7 +39917,7 @@ var App = function (_React$Component) {
         _react2.default.createElement(BookSearchResult, {
           word: this.state.word,
           result: this.state.result,
-          startSearch: this.state.startSearch,
+          startSearchFlag: this.state.startSearchFlag,
           handleSort: this.handleSort,
           handleShow: this.handleShow,
           sort: this.state.sort,
@@ -39935,7 +39928,7 @@ var App = function (_React$Component) {
     }
   }]);
 
-  return App;
+  return BookSearch;
 }(_react2.default.Component);
 
 var BookSearchHeader = function BookSearchHeader(props) {
@@ -39985,7 +39978,6 @@ BookSearchFormButton.propTypes = {
 };
 
 var BookSearchResult = function BookSearchResult(props) {
-  // console.log(props.result);
   var displayRadioButton = function displayRadioButton() {
     if (props.result.length !== 0) {
       return _react2.default.createElement(BookSearchFormRadio, { handleSort: props.handleSort, sort: props.sort });
@@ -39993,13 +39985,13 @@ var BookSearchResult = function BookSearchResult(props) {
     return false;
   };
   var displayItemNodes = function displayItemNodes() {
-    if (props.result.length === 0 && props.startSearch !== false) {
+    if (props.result.length === 0 && props.startSearchFlag !== false) {
       return _react2.default.createElement(
         'p',
         { className: 'nonMessage' },
         '\u304A\u63A2\u3057\u306E\u66F8\u7C4D\u306F\u3042\u308A\u307E\u305B\u3093\u3067\u3057\u305F'
       );
-    } else if (props.startSearch !== false) {
+    } else if (props.startSearchFlag !== false) {
       return props.result.map(function (item) {
         return _react2.default.createElement(BookSearchItem, {
           item: item,
@@ -40023,7 +40015,7 @@ var BookSearchResult = function BookSearchResult(props) {
   );
 };
 BookSearchResult.propTypes = {
-  startSearch: _react2.default.PropTypes.bool,
+  startSearchFlag: _react2.default.PropTypes.bool,
   word: _react2.default.PropTypes.string,
   result: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.object),
   handleSort: _react2.default.PropTypes.func,
@@ -40087,7 +40079,11 @@ var BookSearchItem = function BookSearchItem(props) {
 BookSearchItem.propTypes = {
   handleShow: _react2.default.PropTypes.func,
   selectedItem: _react2.default.PropTypes.string,
-  item: _react2.default.PropTypes.any
+  item: _react2.default.PropTypes.shape({
+    itemUrl: _react2.default.PropTypes.string,
+    smallImageUrl: _react2.default.PropTypes.string,
+    title: _react2.default.PropTypes.string
+  })
 };
 
 var BookSearchDetails = function BookSearchDetails(props) {
@@ -40181,9 +40177,20 @@ var BookSearchDetails = function BookSearchDetails(props) {
   );
 };
 BookSearchDetails.propTypes = {
-  item: _react2.default.PropTypes.object
+  item: _react2.default.PropTypes.shape({
+    itemUrl: _react2.default.PropTypes.string,
+    largeImageUrl: _react2.default.PropTypes.string,
+    title: _react2.default.PropTypes.string,
+    author: _react2.default.PropTypes.string,
+    publisherName: _react2.default.PropTypes.string,
+    salesDate: _react2.default.PropTypes.string,
+    isbn: _react2.default.PropTypes.string,
+    reviewAverage: _react2.default.PropTypes.string,
+    itemPrice: _react2.default.PropTypes.string,
+    itemCaption: _react2.default.PropTypes.string
+  })
 };
 
-_reactDom2.default.render(_react2.default.createElement(App, null), document.querySelector('.content'));
+_reactDom2.default.render(_react2.default.createElement(BookSearch, null), document.querySelector('.content'));
 
 },{"node-fetch":63,"react":238,"react-dom":87}]},{},[264]);

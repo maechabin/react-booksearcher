@@ -1,15 +1,15 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import ReactDOM from 'react-dom';
 import fetch from 'node-fetch';
 
-class App extends React.Component {
-  constructor() {
-    super();
+class BookSearch extends React.Component {
+  constructor(props) {
+    super(props);
     this.state = {
       word: '',
       sort: 'sales',
       result: [],
-      startSearch: false,
+      startSearchFlag: false,
       itemDetails: {},
       selectedItem: '',
     };
@@ -27,32 +27,31 @@ class App extends React.Component {
 
     fetch(`https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522${params}`, {
       method: 'get',
-      mode: 'cors',
     }).then((response) => {
       if (response.status === 200) {
         return response.json();
       }
       return console.log(response);
     }).then(
-      response => callback(response.Items)
+      response => callback(response.Items),
     ).catch(
-      response => console.log(response)
+      response => console.log(response),
     );
   }
   setFetchedData(obj = {}) {
     return this.setState(
-      () => obj,
+      obj,
       () => this.fetchData(
-        apiResult => this.setState(() => ({
+        apiResult => this.setState({
           result: apiResult,
-          startSearch: true,
-        })),
+          startSearchFlag: true,
+        }),
       ),
     );
   }
   handleInput(e) {
     const newValue = e.target.value;
-    return this.setState(() => ({ word: newValue }));
+    return this.setState({ word: newValue });
   }
   handleClick() {
     if (this.state.word !== '') {
@@ -87,7 +86,7 @@ class App extends React.Component {
         <BookSearchResult
           word={this.state.word}
           result={this.state.result}
-          startSearch={this.state.startSearch}
+          startSearchFlag={this.state.startSearchFlag}
           handleSort={this.handleSort}
           handleShow={this.handleShow}
           sort={this.state.sort}
@@ -99,25 +98,29 @@ class App extends React.Component {
   }
 }
 
-const BookSearchHeader = props => (
-  <header>
-    <h1>BookSearch! <span>by 楽天ブックス</span></h1>
-    <BookSearchFormInput
-      word={props.word}
-      handleInput={props.handleInput}
-    />
-    <BookSearchFormButton handleClick={props.handleClick} />
-  </header>
-);
+const BookSearchHeader = (props) => {
+  return (
+    <header>
+      <h1>BookSearch! <span>by 楽天ブックス</span></h1>
+      <BookSearchFormInput
+        word={props.word}
+        handleInput={props.handleInput}
+      />
+      <BookSearchFormButton handleClick={props.handleClick} />
+    </header>
+  );
+};
 BookSearchHeader.propTypes = {
   word: React.PropTypes.string,
   handleInput: React.PropTypes.func,
   handleClick: React.PropTypes.func,
 };
 
-const BookSearchFormInput = props => (
-  <input type="text" placeholder="キーワード" value={props.word} onChange={props.handleInput} />
-);
+const BookSearchFormInput = (props) => {
+  return (
+    <input type="text" placeholder="キーワード" value={props.word} onChange={props.handleInput} />
+  );
+};
 BookSearchFormInput.propTypes = {
   word: React.PropTypes.string,
   handleInput: React.PropTypes.func,
@@ -131,7 +134,6 @@ BookSearchFormButton.propTypes = {
 };
 
 const BookSearchResult = (props) => {
-  // console.log(props.result);
   const displayRadioButton = () => {
     if (props.result.length !== 0) {
       return <BookSearchFormRadio handleSort={props.handleSort} sort={props.sort} />;
@@ -139,9 +141,9 @@ const BookSearchResult = (props) => {
     return false;
   };
   const displayItemNodes = () => {
-    if (props.result.length === 0 && props.startSearch !== false) {
+    if (props.result.length === 0 && props.startSearchFlag !== false) {
       return <p className="nonMessage">お探しの書籍はありませんでした</p>;
-    } else if (props.startSearch !== false) {
+    } else if (props.startSearchFlag !== false) {
       return props.result.map(item => (
         <BookSearchItem
           item={item}
@@ -161,7 +163,7 @@ const BookSearchResult = (props) => {
   );
 };
 BookSearchResult.propTypes = {
-  startSearch: React.PropTypes.bool,
+  startSearchFlag: React.PropTypes.bool,
   word: React.PropTypes.string,
   result: React.PropTypes.arrayOf(React.PropTypes.object),
   handleSort: React.PropTypes.func,
@@ -169,26 +171,28 @@ BookSearchResult.propTypes = {
   sort: React.PropTypes.string,
 };
 
-const BookSearchFormRadio = props => (
-  <div>
-    <label htmlFor="sales">
-      <input
-        id="sales"
-        type="radio" name="sort" value="sales"
-        checked={props.sort === 'sales'}
-        onChange={props.handleSort}
-      /> 売れている順
-    </label>
-    <label htmlFor="releaseDate">
-      <input
-        id="releaseDate"
-        type="radio" name="sort" value="-releaseDate"
-        checked={props.sort === '-releaseDate'}
-        onChange={props.handleSort}
-      /> 発売順
-    </label>
-  </div>
-);
+const BookSearchFormRadio = (props) => {
+  return (
+    <div>
+      <label htmlFor="sales">
+        <input
+          id="sales"
+          type="radio" name="sort" value="sales"
+          checked={props.sort === 'sales'}
+          onChange={props.handleSort}
+        /> 売れている順
+      </label>
+      <label htmlFor="releaseDate">
+        <input
+          id="releaseDate"
+          type="radio" name="sort" value="-releaseDate"
+          checked={props.sort === '-releaseDate'}
+          onChange={props.handleSort}
+        /> 発売順
+      </label>
+    </div>
+  );
+};
 BookSearchFormRadio.propTypes = {
   sort: React.PropTypes.string,
   handleSort: React.PropTypes.func,
@@ -209,7 +213,11 @@ const BookSearchItem = (props) => {
 BookSearchItem.propTypes = {
   handleShow: React.PropTypes.func,
   selectedItem: React.PropTypes.string,
-  item: React.PropTypes.any,
+  item: React.PropTypes.shape({
+    itemUrl: React.PropTypes.string,
+    smallImageUrl: React.PropTypes.string,
+    title: React.PropTypes.string,
+  }),
 };
 
 const BookSearchDetails = (props) => {
@@ -250,10 +258,21 @@ const BookSearchDetails = (props) => {
   );
 };
 BookSearchDetails.propTypes = {
-  item: React.PropTypes.object,
+  item: React.PropTypes.shape({
+    itemUrl: React.PropTypes.string,
+    largeImageUrl: React.PropTypes.string,
+    title: React.PropTypes.string,
+    author: React.PropTypes.string,
+    publisherName: React.PropTypes.string,
+    salesDate: React.PropTypes.string,
+    isbn: React.PropTypes.string,
+    reviewAverage: React.PropTypes.string,
+    itemPrice: React.PropTypes.string,
+    itemCaption: React.PropTypes.string,
+  }),
 };
 
-ReactDom.render(
-  <App />,
+ReactDOM.render(
+  <BookSearch />,
   document.querySelector('.content')
 );
